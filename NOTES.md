@@ -2,6 +2,11 @@
 
 Это clean-версия расширенного архива. Имена пользовательских папок упрощены:
 
+Контакты автора:
+
+- Telegram: <https://t.me/hytalegoekb>
+- Email: <a.a.shatunov@urfu.me>
+
 - `input/` вместо `data/input/`
 - `results/` вместо `data/output/`
 - `results/final_5000_steps` вместо `final_5000_optimized_ml_kmc_run`

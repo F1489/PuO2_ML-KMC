@@ -1,0 +1,2 @@
+top_05pct_n_events,top_05pct_precision_energy_lowering,top_05pct_mean_exact_delta_E,top_05pct_median_exact_delta_E,top_10pct_n_events,top_10pct_precision_energy_lowering,top_10pct_mean_exact_delta_E,top_10pct_median_exact_delta_E,top_20pct_n_events,top_20pct_precision_energy_lowering,top_20pct_mean_exact_delta_E,top_20pct_median_exact_delta_E,false_bad_count,false_bad_rate,false_good_count,false_good_rate
+50,0.96,-0.2845891313319981,-0.24484595839012252,100,0.91,-0.21993330161244626,-0.18219003075289736,200,0.86,-0.1388039890361778,-0.09800504529979825,68,0.068,81,0.081

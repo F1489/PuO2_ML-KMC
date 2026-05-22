@@ -1,0 +1,32 @@
+{
+  "RandomForestClassifier": {
+    "accuracy": 0.8425,
+    "precision_is_energy_lowering": 0.8057692307692308,
+    "recall_is_energy_lowering": 0.6619273301737757,
+    "kmc_classifier_score": 0.7682803347915906
+  },
+  "ExtraTreesClassifier": {
+    "accuracy": 0.841,
+    "precision_is_energy_lowering": 0.7900552486187845,
+    "recall_is_energy_lowering": 0.6777251184834123,
+    "kmc_classifier_score": 0.7685703660548295
+  },
+  "CatBoostClassifier": {
+    "accuracy": 0.8435,
+    "precision_is_energy_lowering": 0.7846975088967971,
+    "recall_is_energy_lowering": 0.6966824644549763,
+    "kmc_classifier_score": 0.7744731152282808
+  },
+  "XGBClassifier": {
+    "accuracy": 0.8485,
+    "precision_is_energy_lowering": 0.7874564459930313,
+    "recall_is_energy_lowering": 0.7140600315955766,
+    "kmc_classifier_score": 0.7831329448563611
+  },
+  "LGBMClassifier": {
+    "accuracy": 0.8545,
+    "precision_is_energy_lowering": 0.749271137026239,
+    "recall_is_energy_lowering": 0.8120063191153238,
+    "kmc_classifier_score": 0.808058552798235
+  }
+}

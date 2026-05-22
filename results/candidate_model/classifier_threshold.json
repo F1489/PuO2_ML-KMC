@@ -1,0 +1,186 @@
+{
+  "selected": {
+    "threshold": 0.275,
+    "accuracy": 0.8145436798438263,
+    "precision": 0.6548387096774193,
+    "recall": 0.9116766467065869,
+    "kmc_threshold_score": 0.8183272723904669
+  },
+  "candidates": [
+    {
+      "threshold": 0.2,
+      "accuracy": 0.7867252318204002,
+      "precision": 0.6124634858812074,
+      "recall": 0.9416167664670658,
+      "kmc_threshold_score": 0.8128609859266015
+    },
+    {
+      "threshold": 0.225,
+      "accuracy": 0.7940458760370913,
+      "precision": 0.6232464929859719,
+      "recall": 0.9311377245508982,
+      "kmc_threshold_score": 0.8130373621055246
+    },
+    {
+      "threshold": 0.25,
+      "accuracy": 0.8062469497315764,
+      "precision": 0.6407061266874351,
+      "recall": 0.9236526946107785,
+      "kmc_threshold_score": 0.817694329166182
+    },
+    {
+      "threshold": 0.275,
+      "accuracy": 0.8145436798438263,
+      "precision": 0.6548387096774193,
+      "recall": 0.9116766467065869,
+      "kmc_threshold_score": 0.8183272723904669
+    },
+    {
+      "threshold": 0.3,
+      "accuracy": 0.8228404099560761,
+      "precision": 0.6711560044893379,
+      "recall": 0.8952095808383234,
+      "kmc_threshold_score": 0.8174854354864028
+    },
+    {
+      "threshold": 0.325,
+      "accuracy": 0.826256710590532,
+      "precision": 0.6801385681293303,
+      "recall": 0.8817365269461078,
+      "kmc_threshold_score": 0.8146930923352407
+    },
+    {
+      "threshold": 0.35,
+      "accuracy": 0.8311371400683261,
+      "precision": 0.6921241050119332,
+      "recall": 0.8682634730538922,
+      "kmc_threshold_score": 0.8130907311477327
+    },
+    {
+      "threshold": 0.375,
+      "accuracy": 0.8321132259638848,
+      "precision": 0.697560975609756,
+      "recall": 0.8562874251497006,
+      "kmc_threshold_score": 0.8093535530089697
+    },
+    {
+      "threshold": 0.4,
+      "accuracy": 0.83601756954612,
+      "precision": 0.7075,
+      "recall": 0.8473053892215568,
+      "kmc_threshold_score": 0.8089676960135366
+    },
+    {
+      "threshold": 0.425,
+      "accuracy": 0.8394338701805759,
+      "precision": 0.7204161248374512,
+      "recall": 0.8293413173652695,
+      "kmc_threshold_score": 0.8051377850779069
+    },
+    {
+      "threshold": 0.45,
+      "accuracy": 0.8438262567105905,
+      "precision": 0.7307692307692307,
+      "recall": 0.8248502994011976,
+      "kmc_threshold_score": 0.8070228194360237
+    },
+    {
+      "threshold": 0.475,
+      "accuracy": 0.8428501708150318,
+      "precision": 0.7350543478260869,
+      "recall": 0.8098802395209581,
+      "kmc_threshold_score": 0.8010647459854624
+    },
+    {
+      "threshold": 0.5,
+      "accuracy": 0.8428501708150318,
+      "precision": 0.7416201117318436,
+      "recall": 0.7949101796407185,
+      "kmc_threshold_score": 0.7959696600157937
+    },
+    {
+      "threshold": 0.525,
+      "accuracy": 0.8472425573450464,
+      "precision": 0.7576197387518142,
+      "recall": 0.781437125748503,
+      "kmc_threshold_score": 0.7952244084782938
+    },
+    {
+      "threshold": 0.55,
+      "accuracy": 0.8521229868228404,
+      "precision": 0.7760968229954615,
+      "recall": 0.7679640718562875,
+      "kmc_threshold_score": 0.7952449341310468
+    },
+    {
+      "threshold": 0.575,
+      "accuracy": 0.8545632015617375,
+      "precision": 0.7908805031446541,
+      "recall": 0.7529940119760479,
+      "kmc_threshold_score": 0.7929363916439063
+    },
+    {
+      "threshold": 0.6,
+      "accuracy": 0.8555392874572962,
+      "precision": 0.8049180327868852,
+      "recall": 0.7350299401197605,
+      "kmc_threshold_score": 0.7886547674878024
+    },
+    {
+      "threshold": 0.625,
+      "accuracy": 0.8589555880917521,
+      "precision": 0.8206429780033841,
+      "recall": 0.7260479041916168,
+      "kmc_threshold_score": 0.7895689778145992
+    },
+    {
+      "threshold": 0.65,
+      "accuracy": 0.8579795021961932,
+      "precision": 0.8348134991119005,
+      "recall": 0.7035928143712575,
+      "kmc_threshold_score": 0.782713991903899
+    },
+    {
+      "threshold": 0.675,
+      "accuracy": 0.8545632015617375,
+      "precision": 0.8425925925925926,
+      "recall": 0.6811377245508982,
+      "kmc_threshold_score": 0.7735290846645736
+    },
+    {
+      "threshold": 0.7,
+      "accuracy": 0.8511469009272816,
+      "precision": 0.851063829787234,
+      "recall": 0.6586826347305389,
+      "kmc_threshold_score": 0.7645172133537355
+    },
+    {
+      "threshold": 0.725,
+      "accuracy": 0.8482186432406051,
+      "precision": 0.8711018711018711,
+      "recall": 0.6272455089820359,
+      "kmc_threshold_score": 0.7545015397895654
+    },
+    {
+      "threshold": 0.75,
+      "accuracy": 0.8399219131283553,
+      "precision": 0.8811659192825112,
+      "recall": 0.5883233532934131,
+      "kmc_threshold_score": 0.7370135627411702
+    },
+    {
+      "threshold": 0.775,
+      "accuracy": 0.838457784285017,
+      "precision": 0.8964705882352941,
+      "recall": 0.5703592814371258,
+      "kmc_threshold_score": 0.7323166589910353
+    },
+    {
+      "threshold": 0.8,
+      "accuracy": 0.8311371400683261,
+      "precision": 0.9025,
+      "recall": 0.5404191616766467,
+      "kmc_threshold_score": 0.7181547647749889
+    }
+  ]
+}

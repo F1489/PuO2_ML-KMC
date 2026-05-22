@@ -1,0 +1,86 @@
+{
+  "RandomForestRegressor": {
+    "mae": 0.101539358928694,
+    "rmse": 0.16101267276732556,
+    "r2": 0.7128283646609295,
+    "sign_accuracy_from_regression": 0.831,
+    "precision_energy_lowering_from_regression": 0.780952380952381,
+    "recall_energy_lowering_from_regression": 0.6477093206951027,
+    "top_event_fraction": 0.05,
+    "top_event_precision_energy_lowering": 0.99,
+    "top_event_mean_exact_delta_E": -0.2927425085270967,
+    "kmc_model_score": 0.8072015848729152
+  },
+  "ExtraTreesRegressor": {
+    "mae": 0.0953269458661399,
+    "rmse": 0.1551405166204283,
+    "r2": 0.7333927903668453,
+    "sign_accuracy_from_regression": 0.8315,
+    "precision_energy_lowering_from_regression": 0.7879377431906615,
+    "recall_energy_lowering_from_regression": 0.6398104265402843,
+    "top_event_fraction": 0.05,
+    "top_event_precision_energy_lowering": 1.0,
+    "top_event_mean_exact_delta_E": -0.2988397575467353,
+    "kmc_model_score": 0.8109865251900978
+  },
+  "GradientBoostingRegressor": {
+    "mae": 0.12088091437179528,
+    "rmse": 0.17654714310980923,
+    "r2": 0.6547427466468527,
+    "sign_accuracy_from_regression": 0.808,
+    "precision_energy_lowering_from_regression": 0.754601226993865,
+    "recall_energy_lowering_from_regression": 0.5829383886255924,
+    "top_event_fraction": 0.05,
+    "top_event_precision_energy_lowering": 0.91,
+    "top_event_mean_exact_delta_E": -0.23410495297972622,
+    "kmc_model_score": 0.754246009153426
+  },
+  "HistGradientBoostingRegressor": {
+    "mae": 0.09803247248461644,
+    "rmse": 0.15038567142271736,
+    "r2": 0.7494846504094581,
+    "sign_accuracy_from_regression": 0.837,
+    "precision_energy_lowering_from_regression": 0.7755834829443446,
+    "recall_energy_lowering_from_regression": 0.6824644549763034,
+    "top_event_fraction": 0.05,
+    "top_event_precision_energy_lowering": 0.95,
+    "top_event_mean_exact_delta_E": -0.28672861486196255,
+    "kmc_model_score": 0.8134888113054947
+  },
+  "CatBoostRegressorEnsemble": {
+    "mae": 0.10308062017212768,
+    "rmse": 0.154510018285265,
+    "r2": 0.7355553953609824,
+    "sign_accuracy_from_regression": 0.829,
+    "precision_energy_lowering_from_regression": 0.7602862254025045,
+    "recall_energy_lowering_from_regression": 0.6714060031595577,
+    "top_event_fraction": 0.05,
+    "top_event_precision_energy_lowering": 0.96,
+    "top_event_mean_exact_delta_E": -0.28140898980602835,
+    "kmc_model_score": 0.8083348100940367
+  },
+  "XGBRegressorEnsemble": {
+    "mae": 0.09415791397066021,
+    "rmse": 0.14493964782678295,
+    "r2": 0.767300298421087,
+    "sign_accuracy_from_regression": 0.838,
+    "precision_energy_lowering_from_regression": 0.764102564102564,
+    "recall_energy_lowering_from_regression": 0.7061611374407583,
+    "top_event_fraction": 0.05,
+    "top_event_precision_energy_lowering": 0.97,
+    "top_event_mean_exact_delta_E": -0.29001036409204645,
+    "kmc_model_score": 0.8274353291233526
+  },
+  "LGBMRegressorEnsemble": {
+    "mae": 0.08916570070155157,
+    "rmse": 0.13944681001618575,
+    "r2": 0.7846035256246913,
+    "sign_accuracy_from_regression": 0.8445,
+    "precision_energy_lowering_from_regression": 0.7775862068965518,
+    "recall_energy_lowering_from_regression": 0.7124802527646129,
+    "top_event_fraction": 0.05,
+    "top_event_precision_energy_lowering": 0.98,
+    "top_event_mean_exact_delta_E": -0.3012095093028115,
+    "kmc_model_score": 0.8363855920348569
+  }
+}

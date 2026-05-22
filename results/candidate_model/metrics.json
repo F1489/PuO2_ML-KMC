@@ -1,0 +1,20 @@
+{
+  "mae": 0.09399788609241845,
+  "rmse": 0.15127084899036827,
+  "r2": 0.7693254456538108,
+  "accuracy": 0.8428501708150318,
+  "precision_is_energy_lowering": 0.7416201117318436,
+  "recall_is_energy_lowering": 0.7949101796407185,
+  "tuned_threshold": 0.275,
+  "tuned_accuracy": 0.8145436798438263,
+  "tuned_precision_is_energy_lowering": 0.6548387096774193,
+  "tuned_recall_is_energy_lowering": 0.9116766467065869,
+  "best_regressor": "LGBMRegressorEnsemble",
+  "best_classifier": "LGBMClassifier",
+  "classifier_target": "is_energy_lowering",
+  "model_selection_objective": "kMC-oriented ranking/sign score",
+  "n_training_rows": 10244,
+  "n_features": 139,
+  "use_external_models": true,
+  "ensemble_size": 2
+}

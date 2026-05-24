@@ -23,13 +23,6 @@ results/final_5000_steps
 results/best_model
 ```
 
-Главные красивые графики для отчета:
-
-```text
-results/final_5000_steps/publication_figures/main_result_summary.png
-results/final_5000_steps/publication_figures/model_diagnostics.png
-results/crystallization_seeded/publication_figures/seeded_crystallization_summary.png
-```
 
 Основная научная формулировка:
 

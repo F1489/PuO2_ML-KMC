@@ -6,13 +6,14 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from joblib import Parallel, delayed
 
 try:
     from tqdm import tqdm
 except ImportError:  # pragma: no cover - fallback for minimal environments
     tqdm = lambda iterable, **_: iterable
 
-from .events import Event, apply_event_to_positions, event_delta_energy, generate_candidate_events_with_diagnostics
+from .events import Event, apply_event_to_positions, event_delta_energy, generate_candidate_events_with_diagnostics, is_valid_event
 from .features import get_feature_names, make_event_features
 from .io_xyz import write_xyz
 from .ml_model import estimate_uncertainty_rf, load_models, predict_delta_E, predict_good_event_probability, train_models
@@ -65,6 +66,7 @@ class MLKMC:
         anneal_final_temperature: float | None = None,
         anneal_tau: float = 0.0,
         frozen_atom_indices: set[int] | None = None,
+        n_jobs: int = 1,
         seed: int = 42,
     ) -> None:
         self.atoms = list(atoms)
@@ -95,6 +97,7 @@ class MLKMC:
         self.anneal_final_temperature = anneal_final_temperature
         self.anneal_tau = anneal_tau
         self.frozen_atom_indices = set() if frozen_atom_indices is None else set(frozen_atom_indices)
+        self.n_jobs = int(n_jobs)
         self.current_max_displacement = max_displacement
         self.rng = np.random.default_rng(seed)
         self.kmc_time = 0.0
@@ -122,6 +125,22 @@ class MLKMC:
 
     def _combined_score(self, delta_e: np.ndarray, delta_order: np.ndarray | float = 0.0) -> np.ndarray:
         return np.asarray(delta_e, dtype=float) - self.order_bias_lambda * np.asarray(delta_order, dtype=float)
+
+    def _make_features_for_event(self, event: Event, tree: cKDTree, center: np.ndarray) -> np.ndarray:
+        return make_event_features(
+            self.atoms,
+            self.positions,
+            event,
+            tree=tree,
+            potential=self.potential,
+            center=center,
+        )
+
+    def _exact_event_values(self, event: Event, current_order: float) -> tuple[float, float, float]:
+        exact_delta_e = event_delta_energy(self.atoms, self.positions, event, self.potential)
+        exact_delta_order = self._delta_order_for_event(event, current_order) if self.order_bias_lambda > 0.0 else 0.0
+        exact_score = float(self._combined_score(np.asarray([exact_delta_e]), exact_delta_order)[0])
+        return float(exact_delta_e), float(exact_delta_order), exact_score
 
     def _rates_from_score(self, score: np.ndarray, good_probability: np.ndarray, temperature: float) -> np.ndarray:
         barriers = self.base_barrier + np.maximum(0.0, score)
@@ -171,19 +190,13 @@ class MLKMC:
         center = self.positions.mean(axis=0)
         current_temperature = self._current_temperature(step_index)
         current_order = self._order_score(self.positions)
-        features = np.vstack(
-            [
-                make_event_features(
-                    self.atoms,
-                    self.positions,
-                    event,
-                    tree=tree,
-                    potential=self.potential,
-                    center=center,
-                )
-                for event in events
-            ]
-        )
+        if self.n_jobs == 1 or len(events) < 16:
+            feature_rows = [self._make_features_for_event(event, tree, center) for event in events]
+        else:
+            feature_rows = Parallel(n_jobs=self.n_jobs, prefer="threads")(
+                delayed(self._make_features_for_event)(event, tree, center) for event in events
+            )
+        features = np.vstack(feature_rows)
         delta_e_ml = predict_delta_E(self.regressor, features)
         uncertainty = estimate_uncertainty_rf(self.regressor, features)
         good_probability = predict_good_event_probability(self.classifier, features)
@@ -203,10 +216,15 @@ class MLKMC:
         exact_delta_order_by_index: dict[int, float] = {}
         exact_score_by_index: dict[int, float] = {}
         adjusted_rates = np.asarray(rates, dtype=float).copy()
-        for index in sorted(shortlist):
-            exact_delta_e = event_delta_energy(self.atoms, self.positions, events[index], self.potential)
-            exact_delta_order = self._delta_order_for_event(events[index], current_order) if self.order_bias_lambda > 0.0 else 0.0
-            exact_score = float(self._combined_score(np.asarray([exact_delta_e]), exact_delta_order)[0])
+        sorted_shortlist = sorted(shortlist)
+        if self.n_jobs == 1 or len(sorted_shortlist) < 4:
+            exact_rows = [(index, *self._exact_event_values(events[index], current_order)) for index in sorted_shortlist]
+        else:
+            exact_values = Parallel(n_jobs=self.n_jobs, prefer="threads")(
+                delayed(self._exact_event_values)(events[index], current_order) for index in sorted_shortlist
+            )
+            exact_rows = [(index, *values) for index, values in zip(sorted_shortlist, exact_values, strict=True)]
+        for index, exact_delta_e, exact_delta_order, exact_score in exact_rows:
             exact_delta_by_index[index] = exact_delta_e
             exact_delta_order_by_index[index] = exact_delta_order
             exact_score_by_index[index] = exact_score
@@ -320,8 +338,7 @@ class MLKMC:
         reject_value = exact_order_biased_score if exact_order_biased_score is not None else exact_delta_e
         reject_for_score = self.reject_exact_delta_above is not None and reject_value is not None and reject_value > self.reject_exact_delta_above
         reject_for_energy = self.max_exact_delta_e_above is not None and exact_delta_e is not None and exact_delta_e > self.max_exact_delta_e_above
-        proposed_positions = apply_event_to_positions(self.positions, event)
-        reject_for_close_contact = not close_contact_thresholds_satisfied(self.atoms, proposed_positions)
+        reject_for_close_contact = not is_valid_event(self.atoms, self.positions, event, min_distance=self.min_distance)
         if reject_for_score or reject_for_energy or reject_for_close_contact:
             event_applied = False
             if used_exact_rate:
@@ -339,6 +356,7 @@ class MLKMC:
                 dt = float(-np.log(max(self.rng.random(), 1.0e-12)) / total_rate)
 
         if event_applied:
+            proposed_positions = apply_event_to_positions(self.positions, event)
             self.positions = proposed_positions
         self.kmc_time += dt
         if self.adaptive_displacement:
@@ -417,6 +435,7 @@ class MLKMC:
                 "current_max_displacement": self.current_max_displacement,
                 "temperature": self._current_temperature(step_index),
                 "order_bias_lambda": self.order_bias_lambda,
+                "n_jobs": self.n_jobs,
             }
         )
 

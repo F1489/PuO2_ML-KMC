@@ -41,6 +41,7 @@ def _run_stage(
     uncertainty_shortlist_size: int,
     max_exact_delta_e_above: float | None,
     save_xyz_interval: int,
+    n_jobs: int,
     seed: int,
     frozen_atom_indices: set[int] | None = None,
 ) -> tuple[object, pd.DataFrame, float]:
@@ -62,6 +63,7 @@ def _run_stage(
         order_metric="bulk",
         order_biased_events=True,
         frozen_atom_indices=frozen_atom_indices,
+        n_jobs=n_jobs,
         seed=seed,
     )
     start = perf_counter()
@@ -111,6 +113,7 @@ def main() -> None:
     parser.add_argument("--uncertainty-shortlist-size", type=int, default=8)
     parser.add_argument("--max-exact-delta-e-above", type=float, default=0.2)
     parser.add_argument("--save-xyz-interval", type=int, default=1000)
+    parser.add_argument("--n-jobs", type=int, default=1)
     parser.add_argument("--seed", type=int, default=9600)
     args = parser.parse_args()
 
@@ -166,6 +169,7 @@ def main() -> None:
         args.uncertainty_shortlist_size,
         args.max_exact_delta_e_above,
         args.save_xyz_interval,
+        args.n_jobs,
         args.seed,
         frozen_atom_indices=frozen,
     )
@@ -186,6 +190,7 @@ def main() -> None:
         args.uncertainty_shortlist_size,
         args.max_exact_delta_e_above,
         args.save_xyz_interval,
+        args.n_jobs,
         args.seed + 1,
         frozen_atom_indices=None,
     )
@@ -265,6 +270,7 @@ def main() -> None:
             "pre_relaxation_steps": args.pre_relaxation_steps,
             "post_seed_repair_steps": args.post_seed_repair_steps,
             "max_exact_delta_e_above": args.max_exact_delta_e_above,
+            "n_jobs": args.n_jobs,
             "wall_time_stage1_s": stage1_elapsed,
             "wall_time_stage2_s": stage2_elapsed,
             "final_crystalline_core_size": int(len(core)),

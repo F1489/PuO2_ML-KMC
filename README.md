@@ -864,6 +864,9 @@ results/validation_candidate_model
 - `src/potentials.py`: локальная энергия и сила для trial-position без полной пересборки структуры;
 - `src/features.py`: energy+force считаются вместе за один обход соседей;
 - `src/kmc.py`: `cKDTree` и center переиспользуются при выборе события;
+- `src/kmc.py`: close-contact check для выбранного события теперь локальный, без полного O(N²) скана всей структуры;
+- `src/events.py`: collective-event exact `Delta E` считается только по парам, где участвуют moved atoms, а не через две полные энергии всей системы;
+- `src/events.py`: в seeded/order-biased генерации coordination errors считаются один раз и переиспользуются для `snap_to_fluorite_site`, `growth_front` и `local_cluster_affine`;
 - exact checks ограничены shortlist-ом, а не выполняются для всех candidates.
 
 Короткий benchmark после оптимизации:
@@ -877,6 +880,68 @@ about 1.63 steps/s on 50 steps with 64 candidates
 ```text
 1.47 steps/s
 ```
+
+Короткий seeded benchmark после дополнительной оптимизации:
+
+```text
+stage1: about 2.53 steps/s with 64 candidates
+stage2: about 2.51 steps/s with 64 candidates
+```
+
+### Параллелизация `--n-jobs`
+
+В код добавлена экспериментальная опция:
+
+```powershell
+--n-jobs N
+```
+
+Она параллелит:
+
+- построение ML-признаков для candidate events;
+- exact shortlist checks.
+
+Однако для текущего размера системы PuO2_324 и типичных `64..192` candidates overhead потоков оказался больше, чем выигрыш. Поэтому по умолчанию и для production рекомендуется:
+
+```powershell
+--n-jobs 1
+```
+
+Benchmark seeded, `96` candidates, `20+20` steps:
+
+| n_jobs | stage wall time, s | steps/s | speedup vs 1 |
+|---:|---:|---:|---:|
+| 1 | 16.204 | 2.469 | 1.00x |
+| 2 | 23.552 | 1.698 | 0.69x |
+| 4 | 26.597 | 1.504 | 0.61x |
+
+Benchmark seeded, `192` candidates, `8+8` steps:
+
+| n_jobs | stage wall time, s | steps/s | speedup vs 1 |
+|---:|---:|---:|---:|
+| 1 | 9.686 | 1.652 | 1.00x |
+| 2 | 16.703 | 0.958 | 0.58x |
+| 4 | 15.925 | 1.005 | 0.61x |
+
+Вывод: на этом проекте лучше ускорять расчет алгоритмически, а не потоками внутри одного kMC-шагa. Потоки могут стать полезны только для существенно больших систем, гораздо большего числа candidates или если переписать hot loops на NumPy/Numba/Cython так, чтобы они надежно освобождали GIL.
+
+Почему seeded crystallization все равно дороже обычного kMC:
+
+- включает order-biased events;
+- использует collective local-cluster moves;
+- чаще считает order metrics;
+- применяет exact energy guard;
+- обычно запускается в две стадии.
+
+Практические настройки для ускорения seeded расчетов:
+
+| Цель | Рекомендуемые параметры |
+|---|---|
+| Быстрый smoke | `--steps-stage1 50 --steps-stage2 50 --n-candidates-per-step 48 --exact-shortlist-size 6` |
+| Средний тест | `--steps-stage1 500 --steps-stage2 500 --n-candidates-per-step 64 --exact-shortlist-size 8` |
+| Production quality | `--steps-stage1 5000 --steps-stage2 5000 --n-candidates-per-step 96..128 --exact-shortlist-size 8..12` |
+
+Если нужно быстрее получить качественный, но не максимальный seeded result, лучше сначала уменьшать `n-candidates-per-step`, а не полностью отключать exact guard. Exact guard защищает от order-biased событий, которые улучшают порядок, но слишком повышают точную энергию.
 
 ## 18. Частые команды
 

@@ -54,11 +54,27 @@ def apply_event_to_positions(positions: np.ndarray, event: Event) -> np.ndarray:
 
 def event_delta_energy(atoms: list[str], positions: np.ndarray, event: Event, potential: PairPotentialPuO2) -> float:
     """Return exact energy change for a single-atom or collective event."""
-    if len(event_atom_indices(event)) == 1:
+    moved_indices = event_atom_indices(event)
+    if len(moved_indices) == 1:
         return potential.delta_energy_single_move(atoms, positions, event.atom_index, event.new_position)
-    before = potential.total_energy(atoms, positions)
-    after = potential.total_energy(atoms, apply_event_to_positions(positions, event))
-    return float(after - before)
+    positions = np.asarray(positions, dtype=float)
+    moved = set(moved_indices)
+    new_by_index = {
+        int(index): np.asarray(point, dtype=float)
+        for index, point in zip(moved_indices, event_new_positions(event), strict=True)
+    }
+    delta = 0.0
+    for i in range(len(atoms) - 1):
+        i_moved = i in moved
+        for j in range(i + 1, len(atoms)):
+            if not i_moved and j not in moved:
+                continue
+            old_r = float(np.linalg.norm(positions[j] - positions[i]))
+            new_i = new_by_index.get(i, positions[i])
+            new_j = new_by_index.get(j, positions[j])
+            new_r = float(np.linalg.norm(new_j - new_i))
+            delta += potential.pair_energy(atoms[i], atoms[j], new_r) - potential.pair_energy(atoms[i], atoms[j], old_r)
+    return float(delta)
 
 
 def event_min_distance(positions: np.ndarray, event: Event, tree: cKDTree | None = None) -> float:
@@ -357,11 +373,12 @@ def snap_to_fluorite_site_moves(
     rng: np.random.Generator,
     min_distance: float = 1.2,
     tree: cKDTree | None = None,
+    errors: np.ndarray | None = None,
 ) -> list[Event]:
     """Move poorly coordinated atoms toward local fluorite-like opposite-species centroids."""
     positions = np.asarray(positions, dtype=float)
     tree = cKDTree(positions) if tree is None else tree
-    errors = _opposite_coordination_error(atoms, positions)
+    errors = _opposite_coordination_error(atoms, positions) if errors is None else np.asarray(errors, dtype=float)
     weights = errors + 0.05
     weights = weights / weights.sum()
     events: list[Event] = []
@@ -403,14 +420,15 @@ def growth_front_moves(
     rng: np.random.Generator,
     min_distance: float = 1.2,
     tree: cKDTree | None = None,
+    errors: np.ndarray | None = None,
 ) -> list[Event]:
     """Generate moves on the boundary between locally ordered and disordered atoms."""
     positions = np.asarray(positions, dtype=float)
     tree = cKDTree(positions) if tree is None else tree
-    errors = _opposite_coordination_error(atoms, positions)
+    errors = _opposite_coordination_error(atoms, positions) if errors is None else np.asarray(errors, dtype=float)
     core = np.flatnonzero(errors <= 1.0)
     if len(core) == 0:
-        return snap_to_fluorite_site_moves(atoms, positions, n_events, max_displacement, rng, min_distance, tree)
+        return snap_to_fluorite_site_moves(atoms, positions, n_events, max_displacement, rng, min_distance, tree, errors)
     front_mask = np.zeros(len(atoms), dtype=bool)
     for i in core:
         for j in tree.query_ball_point(positions[i], r=4.2):
@@ -418,7 +436,7 @@ def growth_front_moves(
                 front_mask[j] = True
     front = np.flatnonzero(front_mask)
     if len(front) == 0:
-        return snap_to_fluorite_site_moves(atoms, positions, n_events, max_displacement, rng, min_distance, tree)
+        return snap_to_fluorite_site_moves(atoms, positions, n_events, max_displacement, rng, min_distance, tree, errors)
     weights = errors[front] + 0.1
     weights = weights / weights.sum()
     events: list[Event] = []
@@ -449,11 +467,12 @@ def local_cluster_affine_moves(
     min_distance: float = 1.2,
     tree: cKDTree | None = None,
     radius: float = 3.6,
+    errors: np.ndarray | None = None,
 ) -> list[Event]:
     """Generate collective local translation/rotation/scale moves for small neighbor clusters."""
     positions = np.asarray(positions, dtype=float)
     tree = cKDTree(positions) if tree is None else tree
-    errors = _opposite_coordination_error(atoms, positions)
+    errors = _opposite_coordination_error(atoms, positions) if errors is None else np.asarray(errors, dtype=float)
     weights = errors + 0.2
     weights = weights / weights.sum()
     events: list[Event] = []
@@ -524,6 +543,7 @@ def generate_candidate_events_with_diagnostics(
     events: list[Event] = []
     diagnostics = {"requested": n_events, "generated": 0, "rejected": 0}
     frozen = set() if frozen_atom_indices is None else set(frozen_atom_indices)
+    order_errors = _opposite_coordination_error(atoms, positions) if order_biased_events else None
     attempts = 0
     while len(events) < n_events and attempts < 10:
         attempts += 1
@@ -556,9 +576,9 @@ def generate_candidate_events_with_diagnostics(
         events.extend(surface_biased_moves(atoms, positions, n_surface, max_displacement, rng, min_distance, tree))
         events.extend(coordination_improving_moves(atoms, positions, n_coord, max_displacement, rng, min_distance, tree))
         if order_biased_events:
-            events.extend(snap_to_fluorite_site_moves(atoms, positions, n_snap, max_displacement, rng, min_distance, tree))
-            events.extend(growth_front_moves(atoms, positions, n_front, max_displacement, rng, min_distance, tree))
-            events.extend(local_cluster_affine_moves(atoms, positions, n_cluster, max_displacement, rng, min_distance, tree))
+            events.extend(snap_to_fluorite_site_moves(atoms, positions, n_snap, max_displacement, rng, min_distance, tree, order_errors))
+            events.extend(growth_front_moves(atoms, positions, n_front, max_displacement, rng, min_distance, tree, order_errors))
+            events.extend(local_cluster_affine_moves(atoms, positions, n_cluster, max_displacement, rng, min_distance, tree, errors=order_errors))
         events.extend(surface_compression_moves(atoms, positions, n_compress, max_displacement, rng, min_distance, tree))
         if potential is not None and n_relax > 0:
             events.extend(

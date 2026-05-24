@@ -42,6 +42,7 @@ def main() -> None:
     parser.add_argument("--order-biased-events", action="store_true")
     parser.add_argument("--anneal-final-temperature", type=float, default=None)
     parser.add_argument("--anneal-tau", type=float, default=0.0)
+    parser.add_argument("--n-jobs", type=int, default=1)
     parser.add_argument("--active-learning-retrain-interval", type=int, default=0)
     parser.add_argument("--base-dataset", default=None)
     parser.add_argument("--save-xyz-interval", type=int, default=0)
@@ -91,6 +92,7 @@ def main() -> None:
         order_biased_events=args.order_biased_events,
         anneal_final_temperature=args.anneal_final_temperature,
         anneal_tau=args.anneal_tau,
+        n_jobs=args.n_jobs,
         seed=args.seed,
     )
     start = perf_counter()
@@ -129,6 +131,7 @@ def main() -> None:
             "order_biased_events": args.order_biased_events,
             "anneal_final_temperature": args.anneal_final_temperature,
             "anneal_tau": args.anneal_tau,
+            "n_jobs": args.n_jobs,
         }
     )
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")

@@ -29,7 +29,14 @@ def test_train_load_predict_and_uncertainty_interfaces(tmp_path):
     model_dir = tmp_path / "models"
     df.to_csv(dataset_csv, index=False)
 
-    metrics = train_models(dataset_csv, model_dir, seed=7, use_external_models=False, ensemble_size=1)
+    metrics = train_models(
+        dataset_csv,
+        model_dir,
+        seed=7,
+        use_external_models=False,
+        ensemble_size=1,
+        fast_mode=True,
+    )
     regressor, classifier, loaded_features = load_models(model_dir)
 
     assert metrics["best_regressor"]

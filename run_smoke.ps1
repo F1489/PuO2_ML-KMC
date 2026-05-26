@@ -1,10 +1,10 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 python -m src.main_run_kmc `
   --xyz input/PuO2_324.xyz `
-  --model-dir results/best_model `
+  --model-dir results/01_model_best `
   --steps 20 `
-  --out-dir results/smoke_manual `
+  --out-dir results/99_archive/smoke_manual `
   --n-candidates-per-step 32 `
   --exact-shortlist-size 8 `
   --uncertainty-shortlist-size 4 `

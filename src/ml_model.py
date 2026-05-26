@@ -343,6 +343,7 @@ def train_models(
     classifier_target: str = "is_energy_lowering",
     use_external_models: bool = True,
     ensemble_size: int = 3,
+    fast_mode: bool = False,
 ) -> dict[str, object]:
     """Train and compare Delta E regressors plus an event-quality classifier."""
     df = pd.read_csv(dataset_csv)
@@ -358,15 +359,17 @@ def train_models(
     X_train, X_test, yr_train, yr_test, yc_train, yc_test = train_test_split(
         X, y_reg, y_cls, test_size=0.2, random_state=seed, stratify=stratify
     )
+    tree_estimators = 10 if fast_mode else 350
+    extra_tree_estimators = 10 if fast_mode else 500
     candidate_regressors = {
         "RandomForestRegressor": RandomForestRegressor(
-            n_estimators=350,
+            n_estimators=tree_estimators,
             random_state=seed,
             n_jobs=-1,
             min_samples_leaf=2,
         ),
         "ExtraTreesRegressor": ExtraTreesRegressor(
-            n_estimators=500,
+            n_estimators=extra_tree_estimators,
             random_state=seed,
             n_jobs=-1,
             min_samples_leaf=2,
@@ -374,7 +377,11 @@ def train_models(
         "GradientBoostingRegressor": GradientBoostingRegressor(random_state=seed),
         "HistGradientBoostingRegressor": HistGradientBoostingRegressor(random_state=seed),
     }
-    if use_external_models:
+    if fast_mode:
+        candidate_regressors = {
+            "RandomForestRegressor": candidate_regressors["RandomForestRegressor"],
+        }
+    if use_external_models and not fast_mode:
         candidate_regressors.update(_make_external_regressors(seed, ensemble_size))
     regression_report: dict[str, dict[str, float]] = {}
     fitted_regressors = {}
@@ -390,21 +397,25 @@ def train_models(
 
     candidate_classifiers = {
         "RandomForestClassifier": RandomForestClassifier(
-            n_estimators=350,
+            n_estimators=tree_estimators,
             random_state=seed,
             n_jobs=-1,
             class_weight="balanced",
             min_samples_leaf=2,
         ),
         "ExtraTreesClassifier": ExtraTreesClassifier(
-            n_estimators=500,
+            n_estimators=extra_tree_estimators,
             random_state=seed,
             n_jobs=-1,
             class_weight="balanced",
             min_samples_leaf=2,
         ),
     }
-    if use_external_models:
+    if fast_mode:
+        candidate_classifiers = {
+            "RandomForestClassifier": candidate_classifiers["RandomForestClassifier"],
+        }
+    if use_external_models and not fast_mode:
         candidate_classifiers.update(_make_external_classifiers(seed))
     classifier_report: dict[str, dict[str, float]] = {}
     fitted_classifiers = {}
@@ -453,6 +464,7 @@ def train_models(
         "n_features": int(len(feature_columns)),
         "use_external_models": bool(use_external_models),
         "ensemble_size": int(max(1, ensemble_size)),
+        "fast_mode": bool(fast_mode),
     }
 
     model_dir = Path(model_dir)
@@ -470,6 +482,7 @@ def train_models(
         "seed": seed,
         "test_size": 0.2,
         "classifier_target": classifier_target,
+        "fast_mode": bool(fast_mode),
         "feature_columns": feature_columns,
         "selected": {
             "regressor": best_regressor_name,
@@ -483,8 +496,9 @@ def train_models(
     (model_dir / "model_selection_report.json").write_text(
         json.dumps(model_selection_report, indent=2, ensure_ascii=False), encoding="utf-8"
     )
-    _save_feature_importance(regressor, feature_columns, model_dir)
-    _plot_predicted_vs_exact(yr_test, pred_reg, model_dir / "predicted_vs_exact_delta_E.png")
+    if not fast_mode:
+        _save_feature_importance(regressor, feature_columns, model_dir)
+        _plot_predicted_vs_exact(yr_test, pred_reg, model_dir / "predicted_vs_exact_delta_E.png")
     return metrics
 
 

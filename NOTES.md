@@ -1,40 +1,54 @@
-# Notes
+﻿# Notes
 
-Это clean-версия расширенного архива. Имена пользовательских папок упрощены:
+Это clean-версия проекта PuO2 ML-kMC перед сдачей.
 
-Контакты автора:
+## Главное для защиты
+
+Главным результатом считать двухстадийный seeded ML-kMC workflow:
+
+```text
+results/05_seeded_stage1_aggressive/
+results/06_seeded_stage2_polish_1000K/
+```
+
+Краткая формулировка:
+
+```text
+Основной двухстадийный seeded ML-kMC расчет показывает снижение энергии,
+частичный отжиг дефектов и локальное флюоритоподобное упорядочение PuO2.
+```
+
+Не формулировать результат как полную рекристаллизацию всего кластера.
+
+## Что оставить наверху results
+
+```text
+results/01_model_best/
+results/02_model_validation/
+results/03_baseline_kmc/
+results/04_production_5000_steps/
+results/05_seeded_stage1_aggressive/
+results/06_seeded_stage2_polish_1000K/
+```
+
+`results/04_production_5000_steps/` оставлен как дополнительный production-запуск, но не как главный результат.
+
+Промежуточные benchmark, smoke, candidate, old validation и seed-screen результаты лежат в:
+
+```text
+results/99_archive/
+```
+
+## Ключевые файлы
+
+- `README.md` - основная инструкция и научная формулировка.
+- `RESULTS_SUMMARY.md` - короткая таблица метрик для преподавателя.
+- `requirements.txt` - минимальные версии зависимостей.
+- `test.ps1` - запуск unit tests.
+- `run_smoke.ps1` - короткий проверочный kMC запуск.
+- `validate.ps1` - короткая validation-проверка модели.
+
+## Контакты автора
 
 - Telegram: <https://t.me/hytalegoekb>
 - Email: <a.a.shatunov@urfu.me>
-
-- `input/` вместо `data/input/`
-- `results/` вместо `data/output/`
-- `results/final_5000_steps` вместо `final_5000_optimized_ml_kmc_run`
-- `results/best_model` вместо `models`
-- `results/crystallization_seeded` вместо `seeded_production_run`
-
-Главный результат: `results/final_5000_steps`.
-
-Лучшая модель: `results/best_model`.
-
-Кристаллизация: `results/crystallization_seeded` как supplementary seeded/local-ordering evidence.
-
-Красивые графики для отчета:
-
-- `results/final_5000_steps/publication_figures/main_result_summary.png`
-- `results/final_5000_steps/publication_figures/model_diagnostics.png`
-- `results/crystallization_seeded/publication_figures/seeded_crystallization_summary.png`
-
-Проверка:
-
-```powershell
-.\test.ps1
-```
-
-Короткий запуск:
-
-```powershell
-.\run_smoke.ps1
-```
-
-Файлы в `src/` не переименованы намеренно: это Python-модули, и их имена участвуют в imports.

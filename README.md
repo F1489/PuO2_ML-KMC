@@ -163,11 +163,40 @@ python -m src.crystal_visualization --initial-xyz input/PuO2_324.xyz --final-xyz
 .\validate.ps1
 ```
 
+## Reproducing The Main Result
+
+The final reported result is already stored in:
+
+```text
+results/05_seeded_stage1_aggressive/
+results/06_seeded_stage2_polish_1000K/
+```
+
+These folders contain the saved trajectories, final XYZ structure, history tables, plots, and summary files used for the reported metrics.
+
+To reproduce a shorter demonstration run, use:
+
+```powershell
+.\run_smoke.ps1
+```
+
+The full production workflow is computationally heavier and may take substantially longer than the smoke run. The main reported numbers should therefore be read from the saved result folders above unless a full rerun is explicitly required.
+
 ## Ключевые параметры запуска
 
 - `--lambda-stage1`, `--lambda-stage2` в seeded workflow и `--order-bias-lambda` в обычном ML-kMC задают силу bias к росту структурного порядка. Внутренний score события имеет вид примерно `delta_E - lambda * delta_order`: большее `lambda` сильнее поощряет события, которые улучшают флюоритоподобную координацию, даже если энергетический выигрыш не самый большой.
 - `--seed-radius` задает радиус исходного флюоритоподобного seed-фрагмента в ангстремах. Больший радиус создает более крупное кристаллическое ядро перед kMC, но может сильнее навязать структуру; меньший радиус оставляет больше свободы последующей релаксации.
 - `--exact-shortlist-size` задает, сколько лучших ML-кандидатов на каждом шаге дополнительно проверяются exact-энергией MOX-07. Большее значение повышает надежность выбора события, но делает запуск медленнее; меньшее ускоряет расчет, но сильнее доверяет ML-ранжированию.
+
+## Научно-методическое позиционирование
+
+Проект корректнее формулировать как **ML-guided/off-lattice kinetic Monte Carlo workflow for searching lower-energy defect-relaxed configurations of PuO2 clusters**.
+
+Это не строгий предсказательный kMC для реальной кинетики PuO2. В расчете используются конечный кластер, парный потенциал MOX-07, ML-ранжирование событий, bias к структурному порядку и seeded workflow. Поэтому результат показывает эффективный поиск более низкоэнергетических дефектно-релаксированных конфигураций и локальное флюоритоподобное упорядочение, а не прямое моделирование экспериментальных времен, барьеров переходов и полной термодинамической рекристаллизации.
+
+## Формулировка для защиты
+
+В проекте реализован ML-ускоренный workflow кинетического Монте-Карло для моделирования дефектной релаксации и локального флюоритоподобного упорядочения структуры PuO2. ML-модель используется как быстрый ранжировщик возможных локальных перестроек, а выбранные события дополнительно проверяются exact-оценкой энергии на основе потенциала MOX-07. Основной результат - двухстадийный seeded ML-kMC расчет, в котором энергия снизилась примерно на `0.94 eV/PuO2`, bulk fluorite order score вырос примерно с `0.63` до `0.88`, а средняя ошибка координации уменьшилась. Результат интерпретируется как частичный отжиг дефектов и локальное упорядочение, а не как полная рекристаллизация.
 
 ## Главные изображения
 

@@ -1,4 +1,4 @@
-﻿# PuO2 ML-kMC
+# PuO2 ML-kMC
 
 Проект демонстрирует ML-kMC workflow для моделирования локального упорядочения и дефектной релаксации структуры PuO2. ML-модель используется как быстрый ранжировщик candidate events: она предсказывает изменение энергии и помогает выбрать наиболее перспективные локальные перестройки. После этого выбранные события проверяются exact-оценкой энергии на основе потенциала MOX-07.
 
@@ -21,7 +21,7 @@ results/06_seeded_stage2_polish_1000K/
 | Metric | Initial | Final |
 | --- | ---: | ---: |
 | Energy, eV/PuO2 | -46.6442 | -47.5877 |
-| Delta E, eV/PuO2 |  | -0.9435 |
+| Delta E, eV/PuO2 | — | -0.9435 |
 | Bulk fluorite order score | 0.63 | 0.88 |
 | Mean coordination error | 1.56 | 1.12 |
 | Close-contact safety | False | True |

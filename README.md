@@ -39,6 +39,7 @@ results/03_baseline_kmc/
 results/04_production_5000_steps/
 results/05_seeded_stage1_aggressive/
 results/06_seeded_stage2_polish_1000K/
+results/07_crystal_visualization/
 ```
 
 Роль папок:
@@ -48,6 +49,7 @@ results/06_seeded_stage2_polish_1000K/
 - `results/03_baseline_kmc/` - baseline-расчет без основного seeded two-stage workflow.
 - `results/04_production_5000_steps/` - дополнительный production-запуск на 5000 шагов.
 - `results/05_seeded_stage1_aggressive/` и `results/06_seeded_stage2_polish_1000K/` - главный двухстадийный seeded workflow.
+- `results/07_crystal_visualization/` - отдельные визуализации кристаллической структуры для отчета.
 
 Промежуточные smoke, benchmark, candidate и seed-screen результаты перенесены в:
 
@@ -101,6 +103,7 @@ PuO2_ML_KMC_clean/
     04_production_5000_steps/
     05_seeded_stage1_aggressive/
     06_seeded_stage2_polish_1000K/
+    07_crystal_visualization/
     99_archive/
 ```
 
@@ -134,10 +137,22 @@ python -m pytest -q
 
 Full ML pipeline test trains several tree-based models. In unit tests it uses a small `fast_mode` configuration so the complete test suite remains suitable as a quick check.
 
-Короткий smoke-run:
+Короткий smoke-run ML-kMC:
 
 ```powershell
 python -m src.main_run_kmc --xyz input/PuO2_324.xyz --model-dir results/01_model_best --steps 20 --out-dir results/99_archive/smoke_manual --n-candidates-per-step 32 --exact-shortlist-size 8 --uncertainty-shortlist-size 4 --exact-check-interval 5 --reject-exact-delta-above 0 --pre-relaxation-steps 100 --save-xyz-interval 10 --seed 9100
+```
+
+Короткая проверка модели на 100 событиях:
+
+```powershell
+python -m src.main_validate_ml --xyz input/PuO2_324.xyz --model-dir results/01_model_best --out-dir results/99_archive/validation_smoke --n-events 100 --seed 9101
+```
+
+Пересоздать итоговые рисунки структуры и карты дефектов:
+
+```powershell
+python -m src.crystal_visualization --initial-xyz input/PuO2_324.xyz --final-xyz results/06_seeded_stage2_polish_1000K/final.xyz --out-dir results/07_crystal_visualization --zoom-radius 6 --grid-size 12 --initial-energy-per-puo2 -46.6442 --final-energy-per-puo2 -47.5877
 ```
 
 То же самое можно запустить готовыми скриптами:
@@ -148,7 +163,27 @@ python -m src.main_run_kmc --xyz input/PuO2_324.xyz --model-dir results/01_model
 .\validate.ps1
 ```
 
+## Ключевые параметры запуска
+
+- `--lambda-stage1`, `--lambda-stage2` в seeded workflow и `--order-bias-lambda` в обычном ML-kMC задают силу bias к росту структурного порядка. Внутренний score события имеет вид примерно `delta_E - lambda * delta_order`: большее `lambda` сильнее поощряет события, которые улучшают флюоритоподобную координацию, даже если энергетический выигрыш не самый большой.
+- `--seed-radius` задает радиус исходного флюоритоподобного seed-фрагмента в ангстремах. Больший радиус создает более крупное кристаллическое ядро перед kMC, но может сильнее навязать структуру; меньший радиус оставляет больше свободы последующей релаксации.
+- `--exact-shortlist-size` задает, сколько лучших ML-кандидатов на каждом шаге дополнительно проверяются exact-энергией MOX-07. Большее значение повышает надежность выбора события, но делает запуск медленнее; меньшее ускоряет расчет, но сильнее доверяет ML-ранжированию.
+
 ## Главные изображения
+
+Базовая пара структур для сравнения:
+
+```text
+input/PuO2_324.xyz
+results/06_seeded_stage2_polish_1000K/final.xyz
+```
+
+Для удобства эти же XYZ-файлы продублированы в папке визуализации:
+
+```text
+results/07_crystal_visualization/initial_crystal.xyz
+results/07_crystal_visualization/final_crystal.xyz
+```
 
 Для отчета удобно использовать:
 
@@ -156,6 +191,12 @@ python -m src.main_run_kmc --xyz input/PuO2_324.xyz --model-dir results/01_model
 results/05_seeded_stage1_aggressive/initial_final_structure.png
 results/05_seeded_stage1_aggressive/seeded_stage_comparison.png
 results/06_seeded_stage2_polish_1000K/initial_final_structure.png
+results/07_crystal_visualization/initial_crystal_visualization.png
+results/07_crystal_visualization/final_crystal_visualization.png
+results/07_crystal_visualization/initial_final_comparison.png
+results/07_crystal_visualization/final_density_heatmap.png
+results/07_crystal_visualization/initial_defect_map.png
+results/07_crystal_visualization/final_defect_map.png
 results/04_production_5000_steps/publication_figures/main_result_summary.png
 results/04_production_5000_steps/publication_figures/model_diagnostics.png
 ```
@@ -164,7 +205,14 @@ results/04_production_5000_steps/publication_figures/model_diagnostics.png
 
 - Initial amorphized PuO2 structure.
 - Final structure after seeded two-stage ML-kMC relaxation.
+- Initial/final visual comparison of the PuO2 cluster.
 - Final metrics: Energy `-47.5877 eV/PuO2`, bulk order score `0.8788`, mean coordination error `1.1190`, close-contact safety `True`.
+
+Новые визуализации кристаллической структуры можно пересоздать командой. Скрипт обновляет копии XYZ в `results/07_crystal_visualization/`, делает отдельные начальную и финальную 3D-картинки, панель initial/final comparison, 2D-проекцию плотности и карты дефектов координации. Для презентационных рисунков сохраняются PNG и PDF.
+
+```powershell
+python -m src.crystal_visualization --initial-xyz input/PuO2_324.xyz --final-xyz results/06_seeded_stage2_polish_1000K/final.xyz --out-dir results/07_crystal_visualization --zoom-radius 6 --grid-size 12 --initial-energy-per-puo2 -46.6442 --final-energy-per-puo2 -47.5877
+```
 
 ## Ограничения метода
 

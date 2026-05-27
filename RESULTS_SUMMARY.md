@@ -39,3 +39,24 @@ For the final structure after seeded two-stage ML-kMC relaxation:
 - Bulk order score: `0.8788`
 - Mean coordination error: `1.1190`
 - Close-contact safety: `True`
+
+## Crystal Visualizations
+
+Initial and final crystal files used for the visualization:
+
+- `input/PuO2_324.xyz`
+- `results/06_seeded_stage2_polish_1000K/final.xyz`
+
+Convenience copies:
+
+- `results/07_crystal_visualization/initial_crystal.xyz`
+- `results/07_crystal_visualization/final_crystal.xyz`
+
+Generated report figures:
+
+- `results/07_crystal_visualization/initial_crystal_visualization.png`
+- `results/07_crystal_visualization/final_crystal_visualization.png`
+- `results/07_crystal_visualization/initial_final_comparison.png`
+- `results/07_crystal_visualization/final_density_heatmap.png` - 2D density projection integrated over z
+- `results/07_crystal_visualization/initial_defect_map.png` - 3D coordination-defect cube map for the initial structure
+- `results/07_crystal_visualization/final_defect_map.png` - 3D coordination-defect cube map for the final structure
